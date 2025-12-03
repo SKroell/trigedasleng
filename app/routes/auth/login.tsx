@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { prisma } from "../../db.server";
 import { commitSession, getSession } from "../../sessions";
+import bcrypt from "bcryptjs";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -27,11 +28,13 @@ export async function action({ request }: ActionFunctionArgs) {
     where: { email },
   });
 
-  // TODO: Use bcryptjs to compare hash
-  // const isValid = await bcrypt.compare(password, user.password);
-  const isValid = user && user.password === password;
+  if (!user) {
+    return { error: "Invalid email or password" };
+  }
 
-  if (!user || !isValid) {
+  const isValid = await bcrypt.compare(password, user.password);
+
+  if (!isValid) {
     return { error: "Invalid email or password" };
   }
 

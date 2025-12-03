@@ -6,6 +6,9 @@
 /.react-router/
 /build/
 
+#prisma
+/prisma/dev.db
+
 #old files
 tables.sql
 data.sql

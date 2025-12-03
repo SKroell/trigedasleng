@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { prisma } from "../../db.server";
 import { commitSession, getSession } from "../../sessions";
+import bcrypt from "bcryptjs";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -32,8 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return { error: "User already exists" };
   }
 
-  // TODO: Use bcryptjs to hash password when package installation is fixed
-  const passwordHash = password; // INSECURE: For demo only
+  const passwordHash = await bcrypt.hash(password, 10);
 
   // Find default group or create one
   let group = await prisma.group.findFirst({ where: { default: true } });
