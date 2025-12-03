@@ -11,6 +11,7 @@ export default [
   route("word/:word", "routes/word.$word.tsx"),
   
   route("translations", "routes/translations.tsx"),
+  route("translation/:id/:slug?", "routes/translation.$id.tsx"),
   
   route("sources", "routes/sources.tsx"),
   route("grammar", "routes/grammar.tsx"),

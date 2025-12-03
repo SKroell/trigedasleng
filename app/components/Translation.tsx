@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import {
   Card,
   CardContent,
@@ -52,7 +53,8 @@ export default function Translation({ translation }: { translation: any }) {
             }}
           >
             <MuiLink
-              href={`/translation/${id}/${slugify(trigedasleng, { lower: true, strict: true })}`}
+              component={Link}
+              to={`/translation/${id}/${slugify(trigedasleng, { lower: true, strict: true })}`}
               sx={{
                 textDecoration: 'none',
                 color: 'primary.main',
