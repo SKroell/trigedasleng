@@ -23,6 +23,7 @@
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "bootstrap": "^4.6.0",
+    "dotenv": "^16.4.5",
     "isbot": "^5.1.31",
     "react": "^19.1.1",
     "react-autosuggest": "^10.1.0",
