@@ -1,0 +1,250 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  admin     Boolean  @default(false)
+  default   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  users     User[]
+
+  @@map("groups")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  username      String        @unique
+  email         String        @unique
+  password      String
+  groupId       String        @map("group_id")
+  verifiedAt    DateTime?     @map("verified_at")
+  rememberToken String?       @map("remember_token")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  group         Group         @relation(fields: [groupId], references: [id])
+  requests      WordRequest[]
+  votes         Vote[]
+  comments      Comment[]
+  approvedRequests WordRequest[] @relation("ApprovedRequests")
+
+  @@map("users")
+}
+
+model Dictionary {
+  id        String     @id @default(uuid())
+  value     String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  words     Word[]
+  sentences Sentence[]
+
+  @@map("dictionaries")
+}
+
+model Word {
+  id              String               @id @default(uuid())
+  value           String
+  pronunciation   String?
+  dictionaryId    String               @map("dictionary_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  dictionary      Dictionary           @relation(fields: [dictionaryId], references: [id])
+  classifications WordClassification[]
+
+  translationsFrom Translation[] @relation("WordSource")
+  translationsTo   Translation[] @relation("WordTarget")
+
+  @@map("words")
+}
+
+model Classification {
+  id        String               @id @default(uuid())
+  value     String
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+  words     WordClassification[]
+
+  @@map("classifications")
+}
+
+model WordClassification {
+  id               String         @id @default(uuid())
+  wordId           String         @map("word_id")
+  classificationId String         @map("classification_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  word             Word           @relation(fields: [wordId], references: [id])
+  classification   Classification @relation(fields: [classificationId], references: [id])
+
+  @@map("word_classification")
+}
+
+model Source {
+  id           String        @id @default(uuid())
+  title        String
+  author       String
+  date         DateTime?
+  url          String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  sentences    Sentence[]
+  translations Translation[]
+
+  @@map("sources")
+}
+
+model Sentence {
+  id              String            @id @default(uuid())
+  dictionaryId    String            @map("dictionary_id")
+  sourceId        String?           @map("source_id")
+  value           String
+  english         String
+  etymology       String?
+  leipzigGlossing String?           @map("leipzig_glossing")
+  audio           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  dictionary      Dictionary        @relation(fields: [dictionaryId], references: [id])
+  source          Source?           @relation(fields: [sourceId], references: [id])
+  episodes        EpisodeSentence[]
+
+  @@map("sentences")
+}
+
+model Series {
+  id        String    @id @default(uuid())
+  value     String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  seasons   Season[]
+  speakers  Speaker[]
+
+  @@map("series")
+}
+
+model Season {
+  id           String    @id @default(uuid())
+  seriesId     String    @map("series_id")
+  seasonNumber Int       @map("season_number")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  series       Series    @relation(fields: [seriesId], references: [id])
+  episodes     Episode[]
+
+  @@map("seasons")
+}
+
+model Episode {
+  id           String            @id @default(uuid())
+  seasonId     String            @map("season_id")
+  value        String
+  seasonNumber Int               @map("season_number")
+  seriesNumber Int               @map("series_number")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  season       Season            @relation(fields: [seasonId], references: [id])
+  sentences    EpisodeSentence[]
+
+  @@map("episodes")
+}
+
+model Speaker {
+  id        String            @id @default(uuid())
+  value     String
+  seriesId  String            @map("series_id")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  series    Series            @relation(fields: [seriesId], references: [id])
+  sentences EpisodeSentence[]
+
+  @@map("speakers")
+}
+
+model EpisodeSentence {
+  id         String   @id @default(uuid())
+  episodeId  String   @map("episode_id")
+  sentenceId String   @map("sentence_id")
+  speakerId  String?  @map("speaker_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  episode    Episode  @relation(fields: [episodeId], references: [id])
+  sentence   Sentence @relation(fields: [sentenceId], references: [id])
+  speaker    Speaker? @relation(fields: [speakerId], references: [id])
+
+  @@map("episode_sentence")
+}
+
+model Translation {
+  id           String   @id @default(uuid())
+  wordSourceId String   @map("word_source_id")
+  wordTargetId String   @map("word_target_id")
+  sourceId     String?  @map("source_id")
+  etymology    String?  @default("unknown")
+  isApproved   Boolean  @default(false) @map("is_approved")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  wordSource Word    @relation("WordSource", fields: [wordSourceId], references: [id])
+  wordTarget Word    @relation("WordTarget", fields: [wordTargetId], references: [id])
+  source     Source? @relation(fields: [sourceId], references: [id])
+
+  @@map("translations")
+}
+
+model WordRequest {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  type            String        // "word" or "translation"
+  trigedasleng    String?       // For word requests
+  translation     String?       // For word requests
+  classification  String?       // For word requests
+  etymology       String?
+  source          String?       // URL
+  status          String        @default("pending") // "pending", "approved", "rejected"
+  approvedBy      String?       @map("approved_by")
+  approvedAt      DateTime?     @map("approved_at")
+  dictionaryType  String?       @map("dictionary_type") // "canon", "slakgedasleng", "noncanon"
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  user            User          @relation(fields: [userId], references: [id])
+  approver        User?         @relation("ApprovedRequests", fields: [approvedBy], references: [id])
+  votes           Vote[]
+  comments        Comment[]
+
+  @@map("word_requests")
+}
+
+model Vote {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  requestId       String      @map("request_id")
+  value           Int         // 1 for upvote, -1 for downvote
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  user            User        @relation(fields: [userId], references: [id])
+  request         WordRequest @relation(fields: [requestId], references: [id])
+
+  @@unique([userId, requestId])
+  @@map("votes")
+}
+
+model Comment {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  requestId       String      @map("request_id")
+  content         String
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  user            User        @relation(fields: [userId], references: [id])
+  request         WordRequest @relation(fields: [requestId], references: [id])
+
+  @@map("comments")
+}

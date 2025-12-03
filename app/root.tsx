@@ -5,10 +5,19 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
+import "./styles/sass/app.scss";
+import Header from "./components/Header/Header";
+import Sidebar from "./components/Sidebar/Sidebar";
+import Footer from "./components/Footer/Footer";
+import { prisma } from "./db.server";
+import { getSession } from "./sessions";
+import { ThemeProvider } from "./ThemeProvider";
+import { MobileDrawerProvider } from "./contexts/MobileDrawerContext";
+import { Box } from "@mui/material";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -17,11 +26,45 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
   },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
 ];
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+  let user = null;
+  
+  if (userId) {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { group: true }
+    });
+  }
+
+  // Fetch dictionary and translations for search autocomplete
+  // In a real production app at scale, we might want to optimize this 
+  // (e.g. not fetch ALL words, or cache heavily), but for "exact behavior"
+  // matching the old app which fetched everything on mount, we do this.
+  const dictionary = await prisma.word.findMany({
+      select: { id: true, value: true, pronunciation: true }
+  });
+  
+  const translations = await prisma.translation.findMany({
+      include: { wordSource: true, wordTarget: true },
+      take: 1000 // Limit to prevent blowing up payload too much if DB grows huge
+  });
+
+  const formattedTranslations = translations.map(t => ({
+      ...t,
+      trigedasleng: t.wordSource.value,
+      english: t.wordTarget.value
+  }));
+
+  return { 
+      user, 
+      dictionary, 
+      translations: formattedTranslations 
+  };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,7 +85,42 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const { user, dictionary, translations } = useLoaderData<typeof loader>();
+  const isAdmin = user?.group?.admin || false;
+
+  return (
+    <ThemeProvider>
+      <MobileDrawerProvider>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Header 
+              userIsLoggedIn={!!user} 
+              dictionary={dictionary} 
+              translations={translations} 
+          />
+          <Box sx={{ display: 'flex', flex: 1, mt: '64px' }}>
+            <Sidebar 
+                user={user} 
+                isLoggedIn={!!user} 
+                isAdmin={isAdmin} 
+            />
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: { xs: 2, sm: 3 },
+                width: { md: `calc(100% - 280px)` },
+                backgroundColor: 'background.default',
+                minHeight: 'calc(100vh - 64px)',
+              }}
+            >
+              <Outlet />
+            </Box>
+          </Box>
+          <Footer />
+        </Box>
+      </MobileDrawerProvider>
+    </ThemeProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
