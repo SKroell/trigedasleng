@@ -111,6 +111,7 @@ export default function App() {
                 width: { md: `calc(100% - 280px)` },
                 backgroundColor: 'background.default',
                 minHeight: 'calc(100vh - 64px)',
+                maxWidth: '100%',
               }}
             >
               <Outlet />

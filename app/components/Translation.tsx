@@ -35,6 +35,7 @@ export default function Translation({ translation }: { translation: any }) {
   return (
     <Card
       sx={{
+        maxWidth: '100%',
         mb: 2,
         transition: 'all 0.2s ease-in-out',
         '&:hover': {
@@ -42,7 +43,7 @@ export default function Translation({ translation }: { translation: any }) {
         },
       }}
     >
-      <CardContent>
+      <CardContent sx={{ maxWidth: '100%', overflowX: 'scroll' }}>
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="h6"
