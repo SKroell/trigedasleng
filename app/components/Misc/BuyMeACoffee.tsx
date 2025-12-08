@@ -29,5 +29,3 @@ export default function BuyMeACoffee() {
 
     return null;
 }
-
-

@@ -18,14 +18,41 @@ import Translation from "../components/Translation";
 import BuyMeACoffee from "../components/Misc/BuyMeACoffee";
 
 export async function loader() {
+  // Get Trigedasleng dictionary
+  const trigDict = await prisma.dictionary.findFirst({
+    where: { value: "Trigedasleng" },
+  });
+
+  if (!trigDict) {
+    return {
+      recent: [],
+      random: {
+        word: null,
+        translation: null,
+      },
+    };
+  }
+
+  // Get recent Trigedasleng words only
   const recent = await prisma.word.findMany({
+    where: {
+      dictionaryId: trigDict.id,
+    },
     take: 10,
     orderBy: { createdAt: "desc" },
   });
 
-  const countWords = await prisma.word.count();
+  // Get random Trigedasleng word only
+  const countWords = await prisma.word.count({
+    where: {
+      dictionaryId: trigDict.id,
+    },
+  });
   const skipWord = Math.floor(Math.random() * countWords);
   const randomWord = await prisma.word.findFirst({
+    where: {
+      dictionaryId: trigDict.id,
+    },
     skip: skipWord,
   });
 

@@ -7,7 +7,15 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typecheck",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:check-words": "tsx prisma/check-missing-words.ts",
+    "db:add-missing-words": "tsx prisma/add-missing-words.ts",
+    "db:compare-pdf": "tsx prisma/compare-with-pdf.ts",
+    "db:list-missing-trig": "tsx prisma/list-missing-trig-words.ts",
+    "db:analyze-pdf": "tsx prisma/analyze-pdf-words.ts",
+    "db:debug-pdf": "tsx prisma/debug-pdf-extraction.ts",
+    "db:find-vaucha": "tsx prisma/find-vaucha.ts",
+    "db:find-swolen": "tsx prisma/find-swolen.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -25,6 +33,7 @@
     "bootstrap": "^4.6.0",
     "dotenv": "^16.4.5",
     "isbot": "^5.1.31",
+    "pdf-parse": "^2.4.5",
     "react": "^19.1.1",
     "react-autosuggest": "^10.1.0",
     "react-bootstrap": "^2.10.10",

@@ -44,6 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return {
             id: w.id,
             word: w.value,
+            pronunciation: w.pronunciation,
             translation: defString,
             etymology: "",
             filter: w.dictionary.value.toLowerCase(),

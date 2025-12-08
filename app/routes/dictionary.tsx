@@ -89,6 +89,7 @@ export async function loader({ params, request }: any) {
     return {
       id: w.id,
       word: w.value,
+      pronunciation: w.pronunciation,
       translation: translation,
       etymology: etymology,
       filter:

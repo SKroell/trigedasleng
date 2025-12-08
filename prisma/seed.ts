@@ -10,12 +10,44 @@ const prisma = new PrismaClient();
 
 // Helper function to parse MySQL INSERT statements
 function parseInsertStatement(sql: string, tableName: string): any[] {
-  const regex = new RegExp(`INSERT INTO \`?${tableName}\`?[^)]+\\) VALUES\\s*([\\s\\S]+?);`, 'gi');
-  const matches = [...sql.matchAll(regex)];
+  // Find all INSERT statements for this table
+  // Match: INSERT INTO table (...) VALUES ... ; (handles multiple statements)
+  const tableRegex = new RegExp(`INSERT INTO \`?${tableName}\`?`, 'gi');
+  const insertMatches = [...sql.matchAll(tableRegex)];
+  
+  if (insertMatches.length === 0) {
+    console.warn(`No INSERT statements found for table: ${tableName}`);
+    return [];
+  }
+  
   const rows: any[] = [];
-
-  for (const match of matches) {
-    const valuesString = match[1];
+  
+  // Process each INSERT statement
+  for (let i = 0; i < insertMatches.length; i++) {
+    const match = insertMatches[i];
+    const startPos = match.index!;
+    const nextMatchPos = i < insertMatches.length - 1 ? insertMatches[i + 1].index! : sql.length;
+    
+    // Extract the VALUES section for this INSERT statement
+    // Find the VALUES keyword and everything up to the last semicolon before the next INSERT or end
+    const insertSection = sql.substring(startPos, nextMatchPos);
+    const valuesStart = insertSection.indexOf('VALUES');
+    
+    if (valuesStart === -1) {
+      console.warn(`Could not find VALUES keyword in INSERT statement ${i + 1} for ${tableName}`);
+      continue;
+    }
+    
+    // Find the last semicolon before the next INSERT statement (or end of string)
+    // This handles semicolons within string values correctly
+    let semicolonPos = insertSection.lastIndexOf(';');
+    if (semicolonPos === -1 || semicolonPos < valuesStart) {
+      console.warn(`Could not find terminating semicolon in INSERT statement ${i + 1} for ${tableName}`);
+      continue;
+    }
+    
+    const valuesString = insertSection.substring(valuesStart + 6, semicolonPos).trim();
+    
     // Split by rows (handle multi-row inserts and nested parentheses)
     // Match balanced parentheses
     let depth = 0;
@@ -23,8 +55,8 @@ function parseInsertStatement(sql: string, tableName: string): any[] {
     let inString = false;
     let escapeNext = false;
     
-    for (let i = 0; i < valuesString.length; i++) {
-      const char = valuesString[i];
+    for (let j = 0; j < valuesString.length; j++) {
+      const char = valuesString[j];
       
       if (escapeNext) {
         currentRow += char;
@@ -117,6 +149,8 @@ function parseInsertStatement(sql: string, tableName: string): any[] {
       currentRow += char;
     }
   }
+  
+  console.log(`Parsed ${rows.length} rows from ${insertMatches.length} INSERT statement(s) for ${tableName}`);
   return rows;
 }
 
@@ -316,11 +350,15 @@ async function seed() {
     
     // Create translation to English word if definition exists
     if (definition) {
+      // For complex definitions with semicolons, use only the first part
+      // e.g., "as, like; often used..." -> "as, like"
+      const primaryDefinition = definition.split(';')[0].trim();
+      
       // Find or create English word
       const englishDictId = dictMap.get('English')!;
       let englishWord = await prisma.word.findFirst({
         where: {
-          value: definition,
+          value: primaryDefinition,
           dictionaryId: englishDictId,
         },
       });
@@ -328,7 +366,7 @@ async function seed() {
       if (!englishWord) {
         englishWord = await prisma.word.create({
           data: {
-            value: definition,
+            value: primaryDefinition,
             dictionaryId: englishDictId,
           },
         });

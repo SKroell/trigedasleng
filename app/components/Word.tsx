@@ -31,32 +31,47 @@ export default function Word({ word }: { word: any }) {
 		>
 			<CardContent>
 				{/* Word with dotted underline */}
-				<Typography
-					variant="h5"
-					component="h3"
-					sx={{
-						fontWeight: 600,
-						mb: 1,
-						borderBottom: '1px dotted',
-						borderColor: 'text.primary',
-						pb: 0.5,
-						display: 'inline-block',
-					}}
-				>
-					<MuiLink
-						component={Link}
-						to={"/word/" + wordValue}
+				<Box sx={{ mb: 1 }}>
+					<Typography
+						variant="h5"
+						component="h3"
 						sx={{
-							textDecoration: 'none',
-							color: 'text.primary',
-							'&:hover': {
-								textDecoration: 'underline',
-							},
+							fontWeight: 600,
+							borderBottom: '1px dotted',
+							borderColor: 'text.primary',
+							pb: 0.5,
+							display: 'inline-block',
 						}}
 					>
-						{wordValue}
-					</MuiLink>
-				</Typography>
+						<MuiLink
+							component={Link}
+							to={"/word/" + wordValue}
+							sx={{
+								textDecoration: 'none',
+								color: 'text.primary',
+								'&:hover': {
+									textDecoration: 'underline',
+								},
+							}}
+						>
+							{wordValue}
+						</MuiLink>
+					</Typography>
+					{/* Pronunciation */}
+					{word.pronunciation && (
+						<Typography
+							variant="body2"
+							sx={{
+								color: 'text.secondary',
+								fontStyle: 'italic',
+								mt: 0.5,
+								ml: 1,
+							}}
+						>
+							[{word.pronunciation}]
+						</Typography>
+					)}
+				</Box>
 
 				{/* Classification and definition */}
 				{definition && (

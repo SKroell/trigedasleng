@@ -74,6 +74,7 @@ export async function loader({ params }: any) {
       return {
         id: w.id,
         word: w.value,
+        pronunciation: w.pronunciation,
         translation: translation,
         etymology: etymology,
         filter: w.dictionary.value.toLowerCase(),
@@ -123,32 +124,47 @@ export default function WordView() {
         >
           <Box sx={{ mb: 4 }}>
             {/* Word with dotted underline */}
-            <Typography
-              variant="h3"
-              component="h1"
-              sx={{
-                fontWeight: 600,
-                mb: 2,
-                borderBottom: '1px dotted',
-                borderColor: 'text.primary',
-                pb: 1,
-                display: 'inline-block',
-              }}
-            >
-              <MuiLink
-                component={Link}
-                to={"/word/" + primaryWord.word}
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="h3"
+                component="h1"
                 sx={{
-                  textDecoration: "none",
-                  color: "text.primary",
-                  "&:hover": {
-                    textDecoration: "underline",
-                  },
+                  fontWeight: 600,
+                  borderBottom: '1px dotted',
+                  borderColor: 'text.primary',
+                  pb: 1,
+                  display: 'inline-block',
                 }}
               >
-                {primaryWord.word}
-              </MuiLink>
-            </Typography>
+                <MuiLink
+                  component={Link}
+                  to={"/word/" + primaryWord.word}
+                  sx={{
+                    textDecoration: "none",
+                    color: "text.primary",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  {primaryWord.word}
+                </MuiLink>
+              </Typography>
+              {/* Pronunciation */}
+              {primaryWord.pronunciation && (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: 'text.secondary',
+                    fontStyle: 'italic',
+                    mt: 1,
+                    fontWeight: 400,
+                  }}
+                >
+                  [{primaryWord.pronunciation}]
+                </Typography>
+              )}
+            </Box>
 
             {word.map((w: any, index: number) => {
               const isNoncanon = (w.filter || "").includes("noncanon");

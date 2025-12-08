@@ -30,6 +30,7 @@ export async function loader() {
     const mappedDictionary = dictionary.map(w => ({
         id: w.id,
         word: w.value,
+        pronunciation: w.pronunciation,
         translation: w.translationsFrom.map(t => t.wordTarget.value).join(', '),
         filter: w.classifications.map(c => c.classification.value).join(" "),
         classifications: w.classifications.map(c => c.classification.value)
