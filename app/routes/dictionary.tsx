@@ -17,6 +17,20 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { prisma } from "../db.server";
 import Word from "../components/Word";
 import { clientLoaderWithFallback, dictionaryWords } from "../offline-data.client";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ params, matches, location }: any) {
+  const origin = originFromMatches(matches);
+  const names: Record<string, string> = {
+    canon: "Canon Trigedasleng Dictionary",
+    slakgedasleng: "Slakkru Dictionary",
+    slakkru: "Slakkru Dictionary",
+    noncanon: "Noncanon Trigedasleng Dictionary",
+  };
+  const title = names[(params.dictionary || "").toLowerCase()] || "Trigedasleng Dictionary";
+  const description = `Browse the ${title.replace(" Dictionary", "")} — words with English meanings, pronunciations and parts of speech.`;
+  return pageMeta({ title, description, origin, path: location.pathname });
+}
 
 export async function loader({ params, request }: any) {
   const dictParam = params.dictionary?.toLowerCase();

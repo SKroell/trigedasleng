@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate, useSubmit } from 'react-router';
 import {
   AppBar,
@@ -25,8 +25,6 @@ import { useColorMode } from '../../contexts/ColorModeContext';
 
 interface HeaderProps {
     userIsLoggedIn: boolean;
-    dictionary: any[];
-    translations: any[];
 }
 
 // Cap suggestions so the dropdown stays fast — the combined word + translation
@@ -36,9 +34,12 @@ const searchFilter = createFilterOptions<any>({
     stringify: (option) => option.label,
 });
 
-export default function Header({ userIsLoggedIn, dictionary, translations }: HeaderProps) {
+export default function Header({ userIsLoggedIn }: HeaderProps) {
     const [searchValue, setSearchValue] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [searchOptions, setSearchOptions] = useState<any[]>([]);
+    const [loadingOptions, setLoadingOptions] = useState(false);
+    const optionsLoaded = useRef(false);
     const { setMobileOpen } = useMobileDrawer();
     const { mode, toggleColorMode } = useColorMode();
 
@@ -47,21 +48,31 @@ export default function Header({ userIsLoggedIn, dictionary, translations }: Hea
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Combine dictionary and translations for autocomplete
-    const searchOptions = [
-        ...(dictionary || []).map((item: any) => ({
-            label: item.value || item.word,
-            type: 'word',
-            id: item.id,
-            value: item.value || item.word,
-        })),
-        ...(translations || []).map((item: any) => ({
-            label: `${item.trigedasleng || item.word} (${item.english || item.translation})`,
-            type: 'translation',
-            id: item.id,
-            value: item.trigedasleng || item.word,
-        })),
-    ];
+    // The autocomplete index (~all words + translations) is fetched on demand the
+    // first time the search box is used — it's NOT shipped in every page's HTML.
+    const loadSearchIndex = async () => {
+        if (optionsLoaded.current) return;
+        optionsLoaded.current = true;
+        setLoadingOptions(true);
+        try {
+            const res = await fetch('/offline-data.json');
+            if (!res.ok) throw new Error('failed');
+            const data = await res.json();
+            const opts = [
+                ...(data.words || []).map((w: any) => ({ label: w.word, value: w.word, type: 'word' })),
+                ...(data.sentences || []).map((s: any) => ({
+                    label: `${s.trigedasleng} (${s.translation})`,
+                    value: s.trigedasleng,
+                    type: 'translation',
+                })),
+            ];
+            setSearchOptions(opts);
+        } catch {
+            optionsLoaded.current = false; // allow a retry
+        } finally {
+            setLoadingOptions(false);
+        }
+    };
 
     const handleSearch = (value: string) => {
         if (value) {
@@ -133,6 +144,8 @@ export default function Header({ userIsLoggedIn, dictionary, translations }: Hea
                         freeSolo
                         blurOnSelect
                         options={searchOptions}
+                        loading={loadingOptions}
+                        onOpen={loadSearchIndex}
                         filterOptions={searchFilter}
                         getOptionLabel={(option) => typeof option === 'string' ? option : option.label}
                         inputValue={searchValue}
@@ -150,6 +163,7 @@ export default function Header({ userIsLoggedIn, dictionary, translations }: Hea
                         renderInput={(params) => (
                             <TextField
                                 {...params}
+                                onFocus={loadSearchIndex}
                                 placeholder="Search words & translations…"
                                 variant="outlined"
                                 size="small"

@@ -19,13 +19,14 @@ import {
   wordByValue,
   examplesForWord,
 } from "../offline-data.client";
+import { pageMeta, originFromMatches, clampDescription } from "../seo";
 
 export async function loader({ params }: any) {
   const wordValue = params.word;
 
   const wordInfo = await prisma.word.findMany({
     where: { value: wordValue },
-    include: { 
+    include: {
       dictionary: true,
       classifications: {
         include: {
@@ -34,6 +35,11 @@ export async function loader({ params }: any) {
       }
     },
   });
+
+  // Unknown word → real 404 so search engines don't index empty pages.
+  if (wordInfo.length === 0) {
+    throw new Response("Word not found", { status: 404 });
+  }
 
   const examples = await prisma.sentence.findMany({
     where: {
@@ -97,11 +103,33 @@ export async function loader({ params }: any) {
 
 // Offline: render the word + examples from the precached dataset.
 export async function clientLoader({ params, serverLoader }: any) {
-  return clientLoaderWithFallback<any>(serverLoader, (ds) => ({
-    word: wordByValue(ds, params.word),
-    examples: examplesForWord(ds, params.word, 3),
-    source: null,
-  }));
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => {
+    const word = wordByValue(ds, params.word);
+    if (word.length === 0) throw new Response("Word not found", { status: 404 });
+    return { word, examples: examplesForWord(ds, params.word, 3), source: null };
+  });
+}
+
+export function meta({ data, matches, location }: any) {
+  const origin = originFromMatches(matches);
+  if (!data || !data.word || data.word.length === 0) {
+    return pageMeta({ title: "Word not found", origin, noindex: true });
+  }
+  const w = data.word[0];
+  const meaning = clampDescription((w.translation || "").replace(/^[^:]*:\s*/, "").trim() || w.translation || "");
+  const title = `${w.word} — Trigedasleng`;
+  const description = meaning
+    ? `${w.word}: ${meaning}. Meaning, pronunciation and examples in Trigedasleng.`
+    : `${w.word} — a word in Trigedasleng, the language from The 100.`;
+  const definedTerm: Record<string, any> = {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    name: w.word,
+    inLanguage: "tgs",
+    inDefinedTermSet: origin ? `${origin}/dictionary` : "Trigedasleng",
+  };
+  if (w.translation) definedTerm.description = w.translation;
+  return pageMeta({ title, description, origin, path: location.pathname, jsonLd: definedTerm });
 }
 
 export default function WordView() {

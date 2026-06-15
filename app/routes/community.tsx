@@ -1,6 +1,16 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "react-router";
 import { Form, useActionData, useLoaderData, useSubmit } from "react-router";
 import { useState } from "react";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches, location }: any) {
+  return pageMeta({
+    title: "Community",
+    description: "Propose new Trigedasleng words and translations, and vote on community submissions.",
+    origin: originFromMatches(matches),
+    path: location.pathname,
+  });
+}
 import {
   Container,
   Box,

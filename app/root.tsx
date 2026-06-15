@@ -19,6 +19,8 @@ import { ThemeProvider } from "./ThemeProvider";
 import type { ColorMode } from "./theme";
 import { MobileDrawerProvider } from "./contexts/MobileDrawerContext";
 import { Box } from "@mui/material";
+import { pageMeta, originFromMatches } from "./seo";
+import { resolveOrigin } from "./seo.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -57,31 +59,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     });
   }
 
-  // Fetch dictionary and translations for search autocomplete
-  // In a real production app at scale, we might want to optimize this 
-  // (e.g. not fetch ALL words, or cache heavily), but for "exact behavior"
-  // matching the old app which fetched everything on mount, we do this.
-  const dictionary = await prisma.word.findMany({
-      select: { id: true, value: true, pronunciation: true }
-  });
-  
-  const translations = await prisma.translation.findMany({
-      include: { wordSource: true, wordTarget: true },
-      take: 1000 // Limit to prevent blowing up payload too much if DB grows huge
-  });
-
-  const formattedTranslations = translations.map(t => ({
-      ...t,
-      trigedasleng: t.wordSource.value,
-      english: t.wordTarget.value
-  }));
-
+  // The header search index is fetched on demand (Header → /offline-data.json)
+  // rather than inlined into every page, keeping each document small.
   return {
       user,
-      dictionary,
-      translations: formattedTranslations,
       colorMode,
+      siteUrl: resolveOrigin(request),
   };
+}
+
+export function meta({ matches }: Route.MetaArgs) {
+  // Site-wide defaults; content routes override with their own meta().
+  return pageMeta({ origin: originFromMatches(matches) });
 }
 
 // Skip re-running the root loader on plain client navigations so the app keeps
@@ -118,18 +107,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { user, dictionary, translations, colorMode } = useLoaderData<typeof loader>();
+  const { user, colorMode } = useLoaderData<typeof loader>();
   const isAdmin = user?.group?.admin || false;
 
   return (
     <ThemeProvider initialMode={colorMode ?? "light"} explicit={colorMode != null}>
       <MobileDrawerProvider>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Header 
-              userIsLoggedIn={!!user} 
-              dictionary={dictionary} 
-              translations={translations} 
-          />
+          <Header userIsLoggedIn={!!user} />
           <Box sx={{ display: 'flex', flex: 1, mt: '64px' }}>
             <Sidebar 
                 user={user} 

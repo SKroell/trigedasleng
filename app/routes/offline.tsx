@@ -10,6 +10,11 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Box, Typography, Button, CircularProgress, Stack } from "@mui/material";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches }: any) {
+  return pageMeta({ title: "Offline", origin: originFromMatches(matches), noindex: true });
+}
 
 export default function Offline() {
   const [params] = useSearchParams();

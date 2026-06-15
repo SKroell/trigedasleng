@@ -17,6 +17,17 @@ import { prisma } from "../db.server";
 import { seasonList, episodeList } from "../data";
 import Translation from "../components/Translation";
 import { clientLoaderWithFallback } from "../offline-data.client";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches, location }: any) {
+  return pageMeta({
+    title: "Translations",
+    description:
+      "Trigedasleng lines from The 100, organized by season and episode, with English translations, glossing and audio.",
+    origin: originFromMatches(matches),
+    path: location.pathname,
+  });
+}
 
 export async function loader() {
   const sentences = await prisma.sentence.findMany({

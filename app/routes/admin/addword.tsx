@@ -1,5 +1,10 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, redirect } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
+import { pageMeta, originFromMatches } from "../../seo";
+
+export function meta({ matches }: any) {
+  return pageMeta({ title: "Add Word", origin: originFromMatches(matches), noindex: true });
+}
 import {
   Container,
   Box,

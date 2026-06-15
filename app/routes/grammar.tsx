@@ -1,4 +1,5 @@
 import React from 'react';
+import { pageMeta, originFromMatches } from "../seo";
 import {
   Container,
   Typography,
@@ -10,6 +11,16 @@ import {
   TableRow,
   Paper,
 } from '@mui/material';
+
+export function meta({ matches, location }: any) {
+	return pageMeta({
+		title: "Grammar",
+		description:
+			"The full grammar of Trigedasleng — pronunciation, nouns, verbs, pronouns, demonstratives, numbers, questions and sound changes.",
+		origin: originFromMatches(matches),
+		path: location.pathname,
+	});
+}
 
 export default function Grammar() {
 	return (

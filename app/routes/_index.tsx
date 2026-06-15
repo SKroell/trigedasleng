@@ -17,6 +17,32 @@ import Word from "../components/Word";
 import Translation from "../components/Translation";
 import BuyMeACoffee from "../components/Misc/BuyMeACoffee";
 import { clientLoaderWithFallback, homeData } from "../offline-data.client";
+import { pageMeta, originFromMatches, SITE_NAME, SITE_TAGLINE } from "../seo";
+
+export function meta({ matches }: any) {
+  const origin = originFromMatches(matches);
+  const website: Record<string, any> = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    description: SITE_TAGLINE,
+  };
+  if (origin) {
+    website.url = origin;
+    website.potentialAction = {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${origin}/search?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    };
+  }
+  return pageMeta({
+    description:
+      "Look up Trigedasleng words, browse translations from The 100, study the grammar, and practice with flashcards, quizzes and a daily Wordle.",
+    origin,
+    path: "/",
+    jsonLd: website,
+  });
+}
 
 export async function loader() {
   // Get Trigedasleng dictionary

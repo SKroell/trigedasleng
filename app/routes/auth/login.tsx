@@ -1,5 +1,10 @@
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { Form, Link, useActionData } from "react-router";
+import { pageMeta, originFromMatches } from "../../seo";
+
+export function meta({ matches }: any) {
+  return pageMeta({ title: "Log in", origin: originFromMatches(matches), noindex: true });
+}
 import {
   Container,
   Box,

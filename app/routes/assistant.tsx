@@ -27,12 +27,16 @@ import { keyframes } from "@emotion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { episodeList } from "../data";
+import { pageMeta, originFromMatches } from "../seo";
 
-export function meta() {
-  return [
-    { title: "A.L.I.E. — Trigedasleng" },
-    { name: "description", content: "A.L.I.E. — a grounded Trigedasleng translator and language guide." },
-  ];
+export function meta({ matches }: any) {
+  // Interactive chat tool — not useful as a search landing page.
+  return pageMeta({
+    title: "A.L.I.E.",
+    description: "A grounded Trigedasleng translator and language guide.",
+    origin: originFromMatches(matches),
+    noindex: true,
+  });
 }
 
 // A.L.I.E.: City-of-Light aesthetic — near-black, crimson (her red dress), the

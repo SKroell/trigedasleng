@@ -26,6 +26,17 @@ import Match from "../components/Learn/Match";
 import Listen from "../components/Learn/Listen";
 import FillBlank from "../components/Learn/FillBlank";
 import Wordle from "../components/Learn/Wordle";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches, location }: any) {
+  return pageMeta({
+    title: "Learn Trigedasleng",
+    description:
+      "Practice Trigedasleng with flashcards, multiple-choice quizzes, matching pairs, listening, fill-in-the-blank and a daily Wordle.",
+    origin: originFromMatches(matches),
+    path: location.pathname,
+  });
+}
 
 export async function loader() {
   // Trig-side words with at least one English meaning → the practice pool.

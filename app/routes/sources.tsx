@@ -12,6 +12,16 @@ import {
 } from "@mui/material";
 import { prisma } from "../db.server";
 import { clientLoaderWithFallback } from "../offline-data.client";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches, location }: any) {
+  return pageMeta({
+    title: "Sources",
+    description: "Citations and references behind the Trigedasleng dictionary entries and translations.",
+    origin: originFromMatches(matches),
+    path: location.pathname,
+  });
+}
 
 export async function loader() {
   const sources = await prisma.source.findMany({

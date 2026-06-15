@@ -6,6 +6,12 @@ import { prisma } from "../db.server";
 import Word from "../components/Word";
 import Translation from "../components/Translation";
 import { clientLoaderWithFallback, searchDataset } from "../offline-data.client";
+import { pageMeta, originFromMatches } from "../seo";
+
+export function meta({ matches }: any) {
+  // Search-result pages are thin/duplicative — keep them out of the index.
+  return pageMeta({ title: "Search", origin: originFromMatches(matches), noindex: true });
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
