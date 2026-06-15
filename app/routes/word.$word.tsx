@@ -14,6 +14,11 @@ import {
 import WarningIcon from "@mui/icons-material/Warning";
 import { prisma } from "../db.server";
 import Translation from "../components/Translation";
+import {
+  clientLoaderWithFallback,
+  wordByValue,
+  examplesForWord,
+} from "../offline-data.client";
 
 export async function loader({ params }: any) {
   const wordValue = params.word;
@@ -88,6 +93,15 @@ export async function loader({ params }: any) {
     examples: mappedExamples,
     source: null,
   };
+}
+
+// Offline: render the word + examples from the precached dataset.
+export async function clientLoader({ params, serverLoader }: any) {
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => ({
+    word: wordByValue(ds, params.word),
+    examples: examplesForWord(ds, params.word, 3),
+    source: null,
+  }));
 }
 
 export default function WordView() {

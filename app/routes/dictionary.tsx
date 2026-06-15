@@ -16,6 +16,7 @@ import {
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { prisma } from "../db.server";
 import Word from "../components/Word";
+import { clientLoaderWithFallback, dictionaryWords } from "../offline-data.client";
 
 export async function loader({ params, request }: any) {
   const dictParam = params.dictionary?.toLowerCase();
@@ -101,6 +102,13 @@ export async function loader({ params, request }: any) {
   });
 
   return { words: mappedWords };
+}
+
+// Offline: render the (filtered) dictionary from the precached dataset.
+export async function clientLoader({ params, serverLoader }: any) {
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => ({
+    words: dictionaryWords(ds, params.dictionary),
+  }));
 }
 
 const wordClasses = [

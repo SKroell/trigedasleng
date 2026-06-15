@@ -15,12 +15,12 @@ export default function Grammar() {
 	return (
 		<Container maxWidth="lg">
 			<Box sx={{ py: { xs: 2, sm: 3 } }}>
-				<div className="grammar">
+				<div>
 					<Typography variant="h3" component="h1" sx={{ mb: 4, fontWeight: 600 }}>
 						The Grammar of Trigedasleng
 					</Typography>
 					
-					<Box className="entry" id="about-trigedasleng" sx={{ mb: 4 }}>
+					<Box id="about-trigedasleng" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#about-trigedasleng">About Trigedasleng</a>
 						</Typography>
@@ -49,7 +49,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="pronunciation-writing" sx={{ mb: 4 }}>
+					<Box id="pronunciation-writing" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#pronunciation-writing">Pronunciation &amp; Writing</a>
 						</Typography>
@@ -62,7 +62,7 @@ export default function Grammar() {
 						</Typography>
 						
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Vowel</strong></TableCell>
@@ -126,7 +126,7 @@ export default function Grammar() {
 						</Paper>
 						
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Consonant</strong></TableCell>
@@ -211,7 +211,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="names" sx={{ mb: 4 }}>
+					<Box id="names" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#names">Names</a>
 						</Typography>
@@ -220,7 +220,7 @@ export default function Grammar() {
 							Here are a few examples from the show:
 						</Typography>
 						<Paper sx={{ overflow: 'auto' }}>
-							<Table size="small" className="grammar">
+							<Table size="small">
 								<TableBody>
 									<TableRow>
 										<TableCell><strong>Bellamy</strong></TableCell>
@@ -251,7 +251,7 @@ export default function Grammar() {
 						</Paper>
 					</Box>
 					
-					<Box className="entry" id="stress" sx={{ mb: 4 }}>
+					<Box id="stress" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#stress">Stress</a>
 						</Typography>
@@ -262,7 +262,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="monosyllabic-vowel-final" sx={{ mb: 4 }}>
+					<Box id="monosyllabic-vowel-final" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#monosyllabic-vowel-final">Monosyllabic Vowel Final Content Words</a>
 						</Typography>
@@ -275,7 +275,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="morphology-syntax" sx={{ mb: 4 }}>
+					<Box id="morphology-syntax" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#morphology-syntax">Morphology and Syntax</a>
 						</Typography>
@@ -287,7 +287,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="nouns" sx={{ mb: 4 }}>
+					<Box id="nouns" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#nouns">Nouns</a>
 						</Typography>
@@ -324,7 +324,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="verbs" sx={{ mb: 4 }}>
+					<Box id="verbs" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#verbs">Verbs</a>
 						</Typography>
@@ -470,7 +470,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="adjectives" sx={{ mb: 4 }}>
+					<Box id="adjectives" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#adjectives">Adjectives</a>
 						</Typography>
@@ -515,7 +515,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="demonstratives" sx={{ mb: 4 }}>
+					<Box id="demonstratives" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#demonstratives">Demonstratives</a>
 						</Typography>
@@ -524,7 +524,7 @@ export default function Grammar() {
 							the speaker. Their adjectival forms are shown below:
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Form</strong></TableCell>
@@ -551,7 +551,7 @@ export default function Grammar() {
 							These demonstrative adjectives can be turned into demonstrative pronouns as follows:
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Form</strong></TableCell>
@@ -578,7 +578,7 @@ export default function Grammar() {
 							The locative pronouns have stayed closer to their English forms:
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Form</strong></TableCell>
@@ -603,7 +603,7 @@ export default function Grammar() {
 						</Paper>
 					</Box>
 					
-					<Box className="entry" id="adverbs" sx={{ mb: 4 }}>
+					<Box id="adverbs" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#adverbs">Adverbs</a>
 						</Typography>
@@ -613,7 +613,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="relative-clauses" sx={{ mb: 4 }}>
+					<Box id="relative-clauses" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#relative-clauses">Relative Clauses</a>
 						</Typography>
@@ -636,7 +636,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="questions" sx={{ mb: 4 }}>
+					<Box id="questions" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#questions">Questions</a>
 						</Typography>
@@ -684,7 +684,7 @@ export default function Grammar() {
 						</Typography>
 					</Box>
 					
-					<Box className="entry" id="pronouns" sx={{ mb: 4 }}>
+					<Box id="pronouns" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#pronouns">Pronouns</a>
 						</Typography>
@@ -692,7 +692,7 @@ export default function Grammar() {
 							Personal Pronouns
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell></TableCell>
@@ -733,12 +733,12 @@ export default function Grammar() {
 						</Paper>
 					</Box>
 					
-					<Box className="entry" id="number-system" sx={{ mb: 4 }}>
+					<Box id="number-system" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#number-system">Number System</a>
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>#</strong></TableCell>
@@ -868,7 +868,7 @@ export default function Grammar() {
 						</Paper>
 					</Box>
 					
-					<Box className="entry" id="calendrical-vocabulary" sx={{ mb: 4 }}>
+					<Box id="calendrical-vocabulary" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#calendrical-vocabulary">Calendrical Vocabulary</a>
 						</Typography>
@@ -876,7 +876,7 @@ export default function Grammar() {
 							Days of the Week
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>Su</strong></TableCell>
@@ -905,7 +905,7 @@ export default function Grammar() {
 							Months of the Year
 						</Typography>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>January</strong></TableCell>
@@ -925,7 +925,7 @@ export default function Grammar() {
 							</Table>
 						</Paper>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>May</strong></TableCell>
@@ -945,7 +945,7 @@ export default function Grammar() {
 							</Table>
 						</Paper>
 						<Paper sx={{ mb: 3, overflow: 'auto' }}>
-							<Table size="small" className="grammar" sx={{ minWidth: 400 }}>
+							<Table size="small" sx={{ minWidth: 400 }}>
 								<TableHead>
 									<TableRow>
 										<TableCell><strong>September</strong></TableCell>
@@ -966,7 +966,7 @@ export default function Grammar() {
 						</Paper>
 					</Box>
 					
-					<Box className="entry" id="historical-notes" sx={{ mb: 4 }}>
+					<Box id="historical-notes" sx={{ mb: 4 }}>
 						<Typography variant="h4" component="h2" sx={{ mb: 2, fontWeight: 600 }}>
 							<a href="#historical-notes">Historical Notes</a>
 						</Typography>

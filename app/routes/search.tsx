@@ -1,15 +1,18 @@
 import { type LoaderFunctionArgs } from "react-router";
-import { Form, useLoaderData, useSearchParams } from "react-router";
+import { useLoaderData } from "react-router";
+import { Container, Box, Typography, Stack, Chip } from "@mui/material";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import { prisma } from "../db.server";
 import Word from "../components/Word";
 import Translation from "../components/Translation";
+import { clientLoaderWithFallback, searchDataset } from "../offline-data.client";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const query = url.searchParams.get("q");
 
   if (!query || query.length < 2) {
-    return { results: [], query: null };
+    return { words: [], translations: [], query: null };
   }
 
   // Search words
@@ -40,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             include: { wordTarget: true }
         });
         const defString = defs.map(d => d.wordTarget.value).join("; ");
-        
+
         return {
             id: w.id,
             word: w.value,
@@ -63,32 +66,66 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { words: mappedWords, translations: mappedSentences, query };
 }
 
+// Offline: search the precached dataset (words + translations).
+export async function clientLoader({ request, serverLoader }: any) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get("q");
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => {
+    if (!query || query.length < 2) return { words: [], translations: [], query: null };
+    const { words, translations } = searchDataset(ds, query);
+    return { words, translations, query };
+  });
+}
+
 export default function Search() {
   const { words, translations, query } = useLoaderData<typeof loader>();
+  const total = words.length + translations.length;
 
   return (
-    <div className="content">
-        <div id="inner">
-            <h1>Search Results for "{query}"</h1>
-            
-            {words.length > 0 && (
-                <>
-                    <h2>Dictionary Words</h2>
-                    {words.map((w: any) => <Word key={w.id} word={w} />)}
-                </>
-            )}
+    <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3 } }}>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+          {query ? <>Results for <Box component="span" sx={{ color: 'text.secondary' }}>“{query}”</Box></> : "Search"}
+        </Typography>
+        {query && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {total} {total === 1 ? "result" : "results"}
+          </Typography>
+        )}
+      </Box>
 
-            {translations.length > 0 && (
-                <>
-                    <h2>Translations</h2>
-                    {translations.map((t: any) => <Translation key={t.id} translation={t} />)}
-                </>
-            )}
+      {!query && (
+        <Typography color="text.secondary">
+          Type at least two characters in the search bar to look up words and translations.
+        </Typography>
+      )}
 
-            {words.length === 0 && translations.length === 0 && (
-                <p>No results found.</p>
-            )}
-        </div>
-    </div>
+      {query && total === 0 && (
+        <Stack alignItems="center" spacing={1} sx={{ py: 8, color: 'text.secondary' }}>
+          <SearchOffIcon sx={{ fontSize: 48 }} />
+          <Typography>No results found for “{query}”.</Typography>
+        </Stack>
+      )}
+
+      {words.length > 0 && (
+        <Box sx={{ mb: 4 }}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Dictionary words</Typography>
+            <Chip label={words.length} size="small" />
+          </Stack>
+          {words.map((w: any) => <Word key={w.id} word={w} />)}
+        </Box>
+      )}
+
+      {translations.length > 0 && (
+        <Box>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Translations</Typography>
+            <Chip label={translations.length} size="small" />
+          </Stack>
+          {translations.map((t: any) => <Translation key={t.id} translation={t} />)}
+        </Box>
+      )}
+    </Container>
   );
 }

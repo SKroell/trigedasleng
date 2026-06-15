@@ -16,6 +16,7 @@ import Footer from "./components/Footer/Footer";
 import { prisma } from "./db.server";
 import { getSession } from "./sessions";
 import { ThemeProvider } from "./ThemeProvider";
+import type { ColorMode } from "./theme";
 import { MobileDrawerProvider } from "./contexts/MobileDrawerContext";
 import { Box } from "@mui/material";
 
@@ -26,10 +27,26 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
   },
+  { rel: "manifest", href: "/manifest.webmanifest" },
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: "/img/ios180x180.png" },
 ];
 
+// Registers the service worker after load, production-only. Inlined so it runs
+// before hydration without an extra request.
+const SW_REGISTER = `
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}`;
+
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const cookieHeader = request.headers.get("Cookie") || "";
+  const colorModeMatch = cookieHeader.match(/(?:^|;\s*)color-mode=(light|dark)/);
+  const colorMode = colorModeMatch ? (colorModeMatch[1] as ColorMode) : null;
+
+  const session = await getSession(cookieHeader);
   const userId = session.get("userId");
   let user = null;
   
@@ -59,11 +76,19 @@ export async function loader({ request }: Route.LoaderArgs) {
       english: t.wordTarget.value
   }));
 
-  return { 
-      user, 
-      dictionary, 
-      translations: formattedTranslations 
+  return {
+      user,
+      dictionary,
+      translations: formattedTranslations,
+      colorMode,
   };
+}
+
+// Skip re-running the root loader on plain client navigations so the app keeps
+// working offline (its data — user + the search dictionary — is stable for the
+// session). Still revalidate after mutations like login/logout so auth is fresh.
+export function shouldRevalidate({ formMethod }: { formMethod?: string }) {
+  return formMethod != null && formMethod.toUpperCase() !== "GET";
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -71,7 +96,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#f6f6f7" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Trigedasleng" />
         <Meta />
         <Links />
       </head>
@@ -79,17 +109,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        {import.meta.env.PROD && (
+          <script dangerouslySetInnerHTML={{ __html: SW_REGISTER }} />
+        )}
       </body>
     </html>
   );
 }
 
 export default function App() {
-  const { user, dictionary, translations } = useLoaderData<typeof loader>();
+  const { user, dictionary, translations, colorMode } = useLoaderData<typeof loader>();
   const isAdmin = user?.group?.admin || false;
 
   return (
-    <ThemeProvider>
+    <ThemeProvider initialMode={colorMode ?? "light"} explicit={colorMode != null}>
       <MobileDrawerProvider>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Header 

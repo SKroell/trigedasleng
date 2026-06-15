@@ -16,6 +16,7 @@ import { prisma } from "../db.server";
 import Word from "../components/Word";
 import Translation from "../components/Translation";
 import BuyMeACoffee from "../components/Misc/BuyMeACoffee";
+import { clientLoaderWithFallback, homeData } from "../offline-data.client";
 
 export async function loader() {
   // Get Trigedasleng dictionary
@@ -70,6 +71,11 @@ export async function loader() {
       translation: randomTranslation,
     },
   };
+}
+
+// Offline: recent + random pulled from the precached dataset.
+export async function clientLoader({ serverLoader }: any) {
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => homeData(ds));
 }
 
 export default function Home() {

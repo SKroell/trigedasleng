@@ -19,6 +19,10 @@ export default [
 
   route("alie", "routes/assistant.tsx"),
   route("api/chat", "routes/api.chat.tsx"),
+
+  // PWA offline support
+  route("offline-data.json", "routes/offline-data.tsx"),
+  route("offline", "routes/offline.tsx"),
   
   route("login", "routes/auth/login.tsx"),
   route("signup", "routes/auth/signup.tsx"),

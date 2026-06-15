@@ -25,9 +25,9 @@ export default function Translation({ translation }: { translation: any }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const words = trigedasleng.split(' ').filter(w => w.trim() !== '');
-  const etymologyWords = etymology && etymology !== "unknown" ? etymology.split(' ').filter(w => w.trim() !== '') : [];
-  const leipzigWords = leipzig ? leipzig.split(' ').filter(w => w.trim() !== '') : [];
+  const words = trigedasleng.split(' ').filter((w: string) => w.trim() !== '');
+  const etymologyWords = etymology && etymology !== "unknown" ? etymology.split(' ').filter((w: string) => w.trim() !== '') : [];
+  const leipzigWords = leipzig ? leipzig.split(' ').filter((w: string) => w.trim() !== '') : [];
   
   // Determine the maximum number of words to align columns
   const maxWords = Math.max(words.length, etymologyWords.length, leipzigWords.length);
@@ -43,7 +43,7 @@ export default function Translation({ translation }: { translation: any }) {
         },
       }}
     >
-      <CardContent sx={{ maxWidth: '100%', overflowX: 'scroll' }}>
+      <CardContent sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="h6"

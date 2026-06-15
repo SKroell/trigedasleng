@@ -16,6 +16,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { prisma } from "../db.server";
 import { seasonList, episodeList } from "../data";
 import Translation from "../components/Translation";
+import { clientLoaderWithFallback } from "../offline-data.client";
 
 export async function loader() {
   const sentences = await prisma.sentence.findMany({
@@ -47,6 +48,13 @@ export async function loader() {
   });
 
   return { translations };
+}
+
+// Offline: list every translation from the precached dataset.
+export async function clientLoader({ serverLoader }: any) {
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => ({
+    translations: ds.sentences,
+  }));
 }
 
 export default function Translations() {

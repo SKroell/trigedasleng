@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { prisma } from "../db.server";
 import Translation from "../components/Translation";
+import { clientLoaderWithFallback, sentenceById } from "../offline-data.client";
 
 export async function loader({ params }: any) {
   const id = params.id;
@@ -50,6 +51,26 @@ export async function loader({ params }: any) {
     translation,
     source: sentence.source,
   };
+}
+
+// Offline: render this translation from the precached dataset.
+export async function clientLoader({ params, serverLoader }: any) {
+  return clientLoaderWithFallback<any>(serverLoader, (ds) => {
+    const s = sentenceById(ds, params.id);
+    if (!s) throw new Response("Translation not found", { status: 404 });
+    return {
+      translation: {
+        id: s.id,
+        trigedasleng: s.trigedasleng,
+        translation: s.translation,
+        etymology: s.etymology,
+        leipzig: s.leipzig,
+        audio: s.audio,
+        episode: s.episode,
+      },
+      source: s.sourceUrl ? { title: s.sourceTitle, url: s.sourceUrl } : null,
+    };
+  });
 }
 
 export default function TranslationView() {

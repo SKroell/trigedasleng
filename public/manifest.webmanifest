@@ -1,0 +1,29 @@
+{
+  "name": "Trigedasleng Dictionary",
+  "short_name": "Trigedasleng",
+  "description": "Unofficial dictionary, grammar and translations for Trigedasleng, the constructed language from The 100.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f6f7",
+  "theme_color": "#f6f6f7",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "reference", "books"],
+  "icons": [
+    {
+      "src": "/img/pwa512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/ios180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
