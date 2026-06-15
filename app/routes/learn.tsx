@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import { useLoaderData } from "react-router";
 import {
   Container,
@@ -6,177 +6,172 @@ import {
   Box,
   Grid,
   Card,
+  CardActionArea,
   CardContent,
-  IconButton,
   Button,
-} from '@mui/material';
-import FlipIcon from '@mui/icons-material/Flip';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import Word from "../components/Word";
+  Avatar,
+} from "@mui/material";
+import StyleIcon from "@mui/icons-material/Style";
+import QuizIcon from "@mui/icons-material/Quiz";
+import ExtensionIcon from "@mui/icons-material/Extension";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { prisma } from "../db.server";
+import type { LearnWord, LearnSentence } from "../components/Learn/helpers";
+import Flashcards from "../components/Learn/Flashcards";
+import Quiz from "../components/Learn/Quiz";
+import Match from "../components/Learn/Match";
+import Listen from "../components/Learn/Listen";
+import FillBlank from "../components/Learn/FillBlank";
+import Wordle from "../components/Learn/Wordle";
 
 export async function loader() {
-    const dictionary = await prisma.word.findMany({
-        include: {
-            classifications: {
-                include: { classification: true }
-            },
-            translationsFrom: {
-                include: { wordTarget: true }
-            }
-        }
-    });
+  // Trig-side words with at least one English meaning → the practice pool.
+  const words = await prisma.word.findMany({
+    where: { dictionary: { value: { not: "English" } } },
+    include: {
+      dictionary: true,
+      classifications: { include: { classification: true } },
+      translationsFrom: { include: { wordTarget: true } },
+    },
+  });
 
-    const mappedDictionary = dictionary.map(w => ({
-        id: w.id,
-        word: w.value,
-        pronunciation: w.pronunciation,
-        translation: w.translationsFrom.map(t => t.wordTarget.value).join(', '),
-        filter: w.classifications.map(c => c.classification.value).join(" "),
-        classifications: w.classifications.map(c => c.classification.value)
-    }));
+  const mappedWords: LearnWord[] = words
+    .map((w) => ({
+      id: w.id,
+      word: w.value,
+      pronunciation: w.pronunciation,
+      translation: w.translationsFrom.map((t) => t.wordTarget.value).filter(Boolean).join(", "),
+      classifications: w.classifications.map((c) => c.classification.value),
+    }))
+    .filter((w) => w.translation.length > 0);
 
-    return { dictionary: mappedDictionary };
+  const sentences = await prisma.sentence.findMany({
+    select: { id: true, value: true, english: true, audio: true },
+  });
+
+  // Fill-in-the-blank needs sentences with enough words to hide one.
+  const fillSentences: LearnSentence[] = sentences
+    .filter((s) => s.english && s.value.trim().split(/\s+/).length >= 4)
+    .map((s) => ({ id: s.id, trig: s.value, english: s.english }));
+
+  // Listening needs sentences that have an audio clip.
+  const audioSentences: LearnSentence[] = sentences
+    .filter((s) => s.audio && s.english)
+    .map((s) => ({ id: s.id, trig: s.value, english: s.english, audio: s.audio || "" }));
+
+  // Daily Wordle: canon 5-letter words are eligible answers; every distinct
+  // 5-letter word (any dictionary) is an accepted guess.
+  const fiveLetter = words.filter((w) => /^[a-z]{5}$/i.test(w.value));
+  const guesses = Array.from(new Set(fiveLetter.map((w) => w.value.toLowerCase()))).sort();
+  const answerMap = new Map<string, string>();
+  for (const w of fiveLetter) {
+    if (w.dictionary.value !== "Trigedasleng") continue;
+    const key = w.value.toLowerCase();
+    if (answerMap.has(key)) continue;
+    const meaning = w.translationsFrom.map((t) => t.wordTarget.value).filter(Boolean).join(", ");
+    if (meaning) answerMap.set(key, meaning);
+  }
+  const answers = [...answerMap.entries()]
+    .map(([word, meaning]) => ({ word, meaning }))
+    .sort((a, b) => a.word.localeCompare(b.word));
+  const wordle = { answers, guesses };
+
+  return { words: mappedWords, fillSentences, audioSentences, wordle };
 }
 
-function FlashCard({ frontContent, backContent, onNext }: { frontContent: string; backContent: React.ReactNode; onNext: () => void }) {
-    const [showAnswer, setShowAnswer] = useState(false);
+type ModeKey = "wordle" | "flashcards" | "quiz" | "match" | "listen" | "fill";
 
-    const handleFlip = (e?: React.MouseEvent) => {
-        if (e) {
-            e.stopPropagation();
-        }
-        setShowAnswer(!showAnswer);
-    };
-
-    return (
-        <Card
-            sx={{
-                width: { xs: '100%', sm: '30em' },
-                height: '15em',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'transform 0.3s',
-                '&:hover': {
-                    boxShadow: 6,
-                },
-                mb: 3,
-            }}
-            onClick={() => handleFlip()}
-        >
-            <IconButton
-                sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                }}
-                onClick={(e) => handleFlip(e)}
-            >
-                <FlipIcon />
-            </IconButton>
-            <CardContent sx={{ textAlign: 'center', width: '100%' }}>
-                {showAnswer ? (
-                    <Box>
-                        {backContent}
-                        <Box sx={{ mt: 2, opacity: showAnswer ? 1 : 0, transition: 'opacity 0.3s' }}>
-                            <Button
-                                variant="contained"
-                                endIcon={<NavigateNextIcon />}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowAnswer(false);
-                                    onNext();
-                                }}
-                            >
-                                Next
-                            </Button>
-                        </Box>
-                    </Box>
-                ) : (
-                    <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                        {frontContent}
-                    </Typography>
-                )}
-            </CardContent>
-        </Card>
-    );
-}
-
-function CardContainer({ dictionary }: { dictionary: any[] }) {
-    const [cardNumber, setCardNumber] = useState<number | undefined>(undefined);
-
-    useEffect(() => {
-        if (cardNumber === undefined && dictionary.length > 0) {
-            showNextCard();
-        }
-    }, [dictionary.length]);
-
-    const showNextCard = () => {
-        setCardNumber(Math.floor(Math.random() * dictionary.length));
-    };
-
-    if (cardNumber === undefined || dictionary.length === 0) {
-        return <Typography>Loading...</Typography>;
-    }
-
-    const randomWord = dictionary[cardNumber];
-    return (
-        <FlashCard
-            frontContent={randomWord.word}
-            backContent={<Word word={randomWord} />}
-            onNext={showNextCard}
-        />
-    );
-}
+const MODES: { key: ModeKey; title: string; desc: string; icon: React.ReactNode }[] = [
+  { key: "wordle", title: "Daily Wordle", desc: "Guess today's 5-letter Trigedasleng word.", icon: <GridOnIcon /> },
+  { key: "flashcards", title: "Flashcards", desc: "Flip cards to learn words at your own pace.", icon: <StyleIcon /> },
+  { key: "quiz", title: "Multiple Choice", desc: "Pick the right meaning. Build a streak.", icon: <QuizIcon /> },
+  { key: "match", title: "Matching Pairs", desc: "Match words to meanings against the clock.", icon: <ExtensionIcon /> },
+  { key: "listen", title: "Listening", desc: "Identify real lines from the show by ear.", icon: <HeadphonesIcon /> },
+  { key: "fill", title: "Fill in the Blank", desc: "Complete real Trigedasleng sentences.", icon: <EditNoteIcon /> },
+];
 
 export default function Learn() {
-    const { dictionary } = useLoaderData<typeof loader>();
+  const { words, fillSentences, audioSentences, wordle } = useLoaderData<typeof loader>();
+  const [mode, setMode] = useState<ModeKey | null>(null);
 
-    const groups = [
-        "all",
-        "noun",
-        "pronoun",
-        "verb",
-        "adverb",
-        "adjective",
-        "conjunction",
-        "preposition",
-        "interjection",
-        "auxiliary"
-    ];
+  const renderMode = () => {
+    switch (mode) {
+      case "wordle":
+        return <Wordle answers={wordle.answers} guesses={wordle.guesses} />;
+      case "flashcards":
+        return <Flashcards words={words} />;
+      case "quiz":
+        return <Quiz words={words} />;
+      case "match":
+        return <Match words={words} />;
+      case "listen":
+        return <Listen sentences={audioSentences} />;
+      case "fill":
+        return <FillBlank sentences={fillSentences} words={words} />;
+      default:
+        return null;
+    }
+  };
 
-    const generateCardContainers = () => {
-        return groups.map(group => {
-            let words = dictionary.filter((entry: any) => {
-                return (group === "all" || entry.classifications.includes(group));
-            });
-            
-            if (words.length === 0) return null;
-
-            return (
-                <Grid item xs={12} sm={12} md={6} key={group}>
-                    <Typography variant="h5" sx={{ mb: 2, fontWeight: 600, textTransform: 'uppercase' }}>
-                        {group}
-                    </Typography>
-                    <CardContainer dictionary={words} />
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ py: { xs: 2, sm: 3 } }}>
+        {mode === null ? (
+          <>
+            <Typography variant="h3" component="h1" sx={{ mb: 1, fontWeight: 700 }}>
+              Learn Trigedasleng
+            </Typography>
+            <Typography color="text.secondary" sx={{ mb: 4 }}>
+              Pick a way to practice — {words.length} words and {audioSentences.length} voiced lines to play with.
+            </Typography>
+            <Grid container spacing={2}>
+              {MODES.map((m) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={m.key}>
+                  <Card sx={{ height: "100%" }}>
+                    <CardActionArea
+                      onClick={() => setMode(m.key)}
+                      sx={{ height: "100%", p: 1 }}
+                    >
+                      <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                        <Avatar
+                          variant="rounded"
+                          sx={{ bgcolor: "primary.main", color: "primary.contrastText", width: 48, height: 48 }}
+                        >
+                          {m.icon}
+                        </Avatar>
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                          {m.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {m.desc}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
                 </Grid>
-            );
-        }).filter(Boolean);
-    };
-
-    return (
-        <Container maxWidth="lg">
-            <Box sx={{ py: { xs: 2, sm: 3 } }}>
-                <Typography variant="h3" component="h1" sx={{ mb: 4, fontWeight: 600 }}>
-                    Learn Trigedasleng
-                </Typography>
-                <Grid container spacing={3}>
-                    {generateCardContainers()}
-                </Grid>
-            </Box>
-        </Container>
-    );
+              ))}
+            </Grid>
+          </>
+        ) : (
+          <>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => setMode(null)}
+              sx={{ mb: 2 }}
+              color="inherit"
+            >
+              All modes
+            </Button>
+            <Typography variant="h4" component="h1" sx={{ mb: 3, fontWeight: 700 }}>
+              {MODES.find((m) => m.key === mode)?.title}
+            </Typography>
+            {renderMode()}
+          </>
+        )}
+      </Box>
+    </Container>
+  );
 }
