@@ -1,0 +1,22 @@
+# Core retrieval service
+numpy>=1.26
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-dotenv>=1.0
+
+# Pluggable embedder (vector mode only — pick ONE):
+#  - fastembed: ONNX runtime, NO PyTorch (~tens of MB). Best on a CPU-only server.
+#  - sentence-transformers: PyTorch/GPU-capable. On a CPU box install the CPU wheel
+#    first:  pip install torch --index-url https://download.pytorch.org/whl/cpu
+fastembed>=0.3
+# sentence-transformers>=2.7
+
+# Pluggable LLM backends
+anthropic>=0.40
+openai>=1.30          # OpenAI-compatible endpoint for self-hosted vLLM / TGI
+
+# Grammar PDF parsing (added in the grammar phase)
+pypdf>=4.2
+
+# Evaluation harness
+sacrebleu>=2.4        # chrF + BLEU for Trigedasleng output

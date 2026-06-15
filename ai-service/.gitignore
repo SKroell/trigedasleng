@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Generated artifacts
+corpus.jsonl
+grammar_sections.jsonl
+embeddings*.npy
+embeddings*.meta.json

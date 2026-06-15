@@ -18,6 +18,7 @@ import TranslateIcon from '@mui/icons-material/Translate';
 import SchoolIcon from '@mui/icons-material/School';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import SourceIcon from '@mui/icons-material/Source';
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import PeopleIcon from '@mui/icons-material/People';
@@ -50,6 +51,7 @@ export default function Sidebar({ isAdmin }: SidebarProps) {
         { text: 'Slakkru Dictionary', to: '/dictionary/slakgedasleng', icon: <MenuBookIcon /> },
         { text: 'Noncanon Dictionary', to: '/dictionary/noncanon', icon: <MenuBookIcon /> },
         { text: 'Translations', to: '/translations', icon: <TranslateIcon /> },
+        { text: 'A.L.I.E.', to: '/assistant', icon: <AllInclusiveIcon /> },
         { text: 'Grammar', to: '/grammar', icon: <SchoolIcon /> },
         { text: 'Learn', to: '/learn', icon: <AutoStoriesIcon /> },
         { text: 'Sources', to: '/sources', icon: <SourceIcon /> },
