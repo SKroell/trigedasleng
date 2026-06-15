@@ -51,7 +51,7 @@ export default function Sidebar({ isAdmin }: SidebarProps) {
         { text: 'Slakkru Dictionary', to: '/dictionary/slakgedasleng', icon: <MenuBookIcon /> },
         { text: 'Noncanon Dictionary', to: '/dictionary/noncanon', icon: <MenuBookIcon /> },
         { text: 'Translations', to: '/translations', icon: <TranslateIcon /> },
-        { text: 'A.L.I.E.', to: '/assistant', icon: <AllInclusiveIcon /> },
+        { text: 'A.L.I.E.', to: '/alie', icon: <AllInclusiveIcon /> },
         { text: 'Grammar', to: '/grammar', icon: <SchoolIcon /> },
         { text: 'Learn', to: '/learn', icon: <AutoStoriesIcon /> },
         { text: 'Sources', to: '/sources', icon: <SourceIcon /> },

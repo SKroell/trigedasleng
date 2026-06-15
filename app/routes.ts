@@ -17,7 +17,7 @@ export default [
   route("grammar", "routes/grammar.tsx"),
   route("learn", "routes/learn.tsx"),
 
-  route("assistant", "routes/assistant.tsx"),
+  route("alie", "routes/assistant.tsx"),
   route("api/chat", "routes/api.chat.tsx"),
   
   route("login", "routes/auth/login.tsx"),
