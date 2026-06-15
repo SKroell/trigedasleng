@@ -23,6 +23,10 @@ export default [
   // PWA offline support
   route("offline-data.json", "routes/offline-data.tsx"),
   route("offline", "routes/offline.tsx"),
+
+  // SEO
+  route("sitemap.xml", "routes/sitemap.tsx"),
+  route("robots.txt", "routes/robots.tsx"),
   
   route("login", "routes/auth/login.tsx"),
   route("signup", "routes/auth/signup.tsx"),
